@@ -13,15 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: '$LIL Hub',
-  description: 'Live ecosystem terminal for $LIL',
+  title: 'Supercycle Hub',
+  description: 'Live terminal for Supercycle',
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      // Adding a version query forces a refresh if you ever change it again
-      { url: '/favicon.png?v=2', type: 'image/png' }, 
+      { url: '/super-favicon.png', type: 'image/png' },
+      { url: '/super-favicon.png?v=2', type: 'image/png' }, 
     ],
-    apple: '/favicon.png',
+    apple: '/super-favicon.png',
   },
 };
 
