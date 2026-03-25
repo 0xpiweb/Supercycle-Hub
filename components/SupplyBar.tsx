@@ -7,11 +7,12 @@ interface Segment {
 }
 
 export default function SupplyBar({
-  staked, locked, burned, circulating, secured, securedPct,
+  staked, locked, burned, lp, circulating, secured, securedPct,
 }: {
   staked: number;
   locked: number;
   burned: number;       // Moat-burned tokens
+  lp: number;
   circulating: number;
   secured: number;      // staked + locked + burned
   securedPct: string;
@@ -20,6 +21,7 @@ export default function SupplyBar({
     { label: 'Staked',      value: staked,      color: 'bg-blue-500'   },
     { label: 'Locked',      value: locked,      color: 'bg-violet-500' },
     { label: 'Burned',      value: burned,      color: 'bg-red-600'    },
+    { label: 'LP Pair',     value: lp,          color: 'bg-amber-500'  },
     { label: 'Circulating', value: circulating, color: 'bg-zinc-600'   },
   ];
 

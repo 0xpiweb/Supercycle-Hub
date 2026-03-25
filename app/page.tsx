@@ -172,6 +172,7 @@ export default async function Dashboard() {
           staked={stats.staked}
           locked={stats.locked}
           burned={stats.burned}
+          lp={stats.lp}
           circulating={stats.circulating}
           secured={stats.secured}
           securedPct={stats.securedPct}
