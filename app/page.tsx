@@ -91,6 +91,12 @@ export default async function Dashboard() {
   const snapshot24h = rows && rows[0] && rows[0].circulating > 0 ? rows[0] : null;
   const previous = snapshot24h ?? latest;
   const delta    = calcDelta(latest, previous);
+
+  // Master rule: Moat Burn delta can never logically exceed Total Burned delta
+  if (delta.burned != null && delta.dead != null && delta.burned > delta.dead) {
+    delta.burned = delta.dead;
+  }
+
   const circulatingDeltaInvalid =
     !snapshot24h ||
     delta.circulating == null ||
