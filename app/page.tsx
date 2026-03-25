@@ -88,7 +88,8 @@ export default async function Dashboard() {
   latest.circulating = TOTAL_SUPPLY - (latestMoat + latest.lp);
 
   const stats    = rowToStats(latest);
-  const snapshot24h = rows && rows[0] && rows[0].circulating > 0 ? rows[0] : null;
+  // Snapshot is only valid if ALL tracked fields were recorded (lp > 0 guards against old schema rows)
+  const snapshot24h = rows && rows[0] && rows[0].lp > 0 && rows[0].circulating > 0 ? rows[0] : null;
   const previous = snapshot24h ?? latest;
   const delta    = calcDelta(latest, previous);
 
@@ -97,6 +98,13 @@ export default async function Dashboard() {
     delta.burned = delta.dead;
   }
 
+  // LP: hide if no valid snapshot, or delta > 50% of current LP (calculation error)
+  const lpDeltaInvalid =
+    !snapshot24h ||
+    delta.lp == null ||
+    Math.abs(delta.lp) > stats.lp * 0.5;
+
+  // Circulating: hide if no valid snapshot or delta is impossibly large
   const circulatingDeltaInvalid =
     !snapshot24h ||
     delta.circulating == null ||
@@ -155,7 +163,7 @@ export default async function Dashboard() {
         {/* Row 2: Supply breakdown */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <StatCard icon="💀" label="Total Burned"  value={stats.dead}        pct={stats.deadPct}        delta={delta.dead}        provenanceSrc="/skull.svg"      provenanceSrcAlt="Skull" />
-          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" />
+          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" hideChange={lpDeltaInvalid} />
           <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" hideChange={circulatingDeltaInvalid} />
         </div>
 
