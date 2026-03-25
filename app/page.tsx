@@ -253,7 +253,7 @@ export default async function Dashboard() {
         <div className="h-5 w-5 rounded-full overflow-hidden flex-shrink-0">
           <img src="/lil-token.png" className="h-full w-full object-cover" alt="LIL" />
         </div>
-        Switch to $LIL Hub
+        $LIL Hub
       </a>
     </main>
   );
