@@ -104,11 +104,12 @@ export default async function Dashboard() {
     delta.lp == null ||
     Math.abs(delta.lp) > stats.lp * 0.5;
 
-  // Circulating: hide if no valid snapshot or delta is impossibly large
+  // Circulating: hide if no valid snapshot, or delta > 10% of total supply (1B threshold)
   const circulatingDeltaInvalid =
     !snapshot24h ||
     delta.circulating == null ||
-    Math.abs(delta.circulating) > TOTAL_SUPPLY;
+    snapshot24h.circulating <= 0 ||
+    Math.abs(delta.circulating) > TOTAL_SUPPLY * 0.1;
 
   // Market data — server-side initial value for the client MarketTicker
   const dexJson = await dexRes.json().catch(() => null);
