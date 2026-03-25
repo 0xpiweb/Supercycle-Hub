@@ -180,7 +180,7 @@ export default async function Dashboard() {
         {/* Action Bar */}
         <div className="flex flex-wrap justify-center gap-2 py-6">
           <a href={BUY_URL} target="_blank" rel="noopener noreferrer"
-            className={`${btnBase} bg-emerald-950 border-emerald-700 text-emerald-300 hover:bg-emerald-900`}>
+            className={`${btnBase} bg-zinc-900/50 border-[#00FF41]/40 text-[#00FF41] hover:border-[#00FF41] hover:bg-[#00FF41]/10`}>
             🛒 Buy $SUPERCYCLE
           </a>
           <a href={MOAT_URL} target="_blank" rel="noopener noreferrer"
