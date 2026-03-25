@@ -6,6 +6,11 @@ export interface Stats {
   lp: number;
   totalRemoved: number;
   circulating: number;
+  moatTotal: number;
+  moatStrength: string;
+  tokensToGoal: number;
+  secured: number;
+  securedPct: string;
   stakedPct: string;
   lockedPct: string;
   burnedPct: string;

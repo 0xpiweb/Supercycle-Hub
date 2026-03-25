@@ -3,7 +3,7 @@ import { fetchMoatEvents } from '@/lib/fetchMoatEvents';
 import { fetchChainBalances } from '@/lib/fetchChainBalances';
 import { supabase } from '@/lib/supabase';
 
-const TOTAL_SUPPLY = 1_350_000_000;
+const TOTAL_SUPPLY = 10_000_000_000;
 
 export async function POST(req: NextRequest) {
   // Verify cron secret to prevent unauthorized calls
@@ -21,8 +21,9 @@ export async function POST(req: NextRequest) {
     const { staked, locked, burned } = moat;
     const { dead, lp } = chain;
     
-    // The 'dead' variable already contains 'burned', so we don't add 'burned' here.
-    const circulating = TOTAL_SUPPLY - (staked + locked + dead + lp);     
+    // dead already includes moat-burned tokens — no double-counting with burned
+    const moatTotal   = staked + locked + dead;
+    const circulating = TOTAL_SUPPLY - (moatTotal + lp);     
 
     const { error } = await supabase.from('lil_stats').insert({
       staked:      Math.round(staked),
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
       burned:      Math.round(burned),
       dead:        Math.round(dead),
       lp:          Math.round(lp),
-      total_supply: TOTAL_SUPPLY, // Added this so the DB records the supply cap
+      total_supply: TOTAL_SUPPLY,
       circulating: Math.round(circulating),
     });
 

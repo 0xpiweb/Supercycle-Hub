@@ -1,13 +1,20 @@
+import type { ReactNode } from 'react';
+
 interface StatCardProps {
   icon: string;
-  iconSrc?: string;   // optional image path — overrides emoji icon when set
+  iconSrc?: string;
+  iconNode?: ReactNode;
   label: string;
   value: number;
   pct: string;
   delta?: number | null;
   wide?: boolean;
   provenance?: string;
-  provenanceSrc?: string; // optional image for provenance badge
+  provenanceSrc?: string;
+  provenanceSrcAlt?: string;
+  provenanceNode?: ReactNode;
+  glowValue?: boolean;
+  hideChange?: boolean;
 }
 
 function fmt(n: number): string {
@@ -17,7 +24,7 @@ function fmt(n: number): string {
 function DeltaChip({ delta }: { delta: number }) {
   const positive = delta >= 0;
   const arrow    = positive ? '▲' : '▼';
-  const color    = positive ? 'text-emerald-400' : 'text-red-400';
+  const color    = positive ? 'text-[#00FF41]' : 'text-red-400';
   return (
     <span className={`text-xs font-medium ${color}`}>
       {arrow} {positive ? '+' : ''}{fmt(delta)}
@@ -25,53 +32,60 @@ function DeltaChip({ delta }: { delta: number }) {
   );
 }
 
-export default function StatCard({ icon, iconSrc, label, value, pct, delta, wide, provenance, provenanceSrc }: StatCardProps) {
+export default function StatCard({
+  icon, iconSrc, iconNode, label, value, pct, delta, wide,
+  provenance, provenanceSrc, provenanceSrcAlt, provenanceNode,
+  glowValue, hideChange,
+}: StatCardProps) {
   return (
-    <div className={`relative bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2 ${wide ? 'col-span-2' : ''}`}>
+    <div className={`relative bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2 transition-colors hover:border-[#00FF41] ${wide ? 'col-span-2' : ''}`}>
       <div className="flex items-center justify-between">
         <span className="text-zinc-400 text-sm font-medium flex items-center gap-1.5">
-          {iconSrc
-            ? <div className="h-6 w-6 min-w-[24px] rounded-full bg-white overflow-hidden flex-shrink-0 flex items-center justify-center"><img src={iconSrc} className="h-full w-full object-cover" alt="token" /></div>
-            : <span>{icon}</span>
+          {iconNode
+            ? <span className="h-6 w-6 min-w-[24px] flex-shrink-0 flex items-center justify-center">{iconNode}</span>
+            : iconSrc
+              ? <div className="h-6 w-6 min-w-[24px] rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"><img src={iconSrc} className="h-full w-full object-cover" alt="token" /></div>
+              : <span>{icon}</span>
           }
           {label}
         </span>
-        <span className="bg-emerald-950 text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full">
+        <span className="bg-black border border-[#00FF41]/30 text-[#00FF41] text-xs font-semibold px-2 py-0.5 rounded-full">
           {pct}%
         </span>
       </div>
 
-      <p className="text-white text-2xl font-bold tracking-tight">
+      <p className={`text-2xl font-bold tracking-tight ${glowValue ? 'text-[#00FF41] [text-shadow:0_0_12px_rgba(0,255,65,0.5)]' : 'text-white'}`}>
         {fmt(value)}
-        <span className="text-zinc-500 text-base font-normal ml-1">$LIL</span>
+        <span className="text-zinc-500 text-base font-normal ml-1">$SUPERCYCLE</span>
       </p>
 
       <div className="h-4">
-        {delta != null ? (
+        {!hideChange && delta != null ? (
           <div className="flex items-center gap-1 text-zinc-400 text-xs">
             <span>24h:</span>
             <DeltaChip delta={delta} />
           </div>
-        ) : (
+        ) : !hideChange ? (
           <span className="text-zinc-600 text-xs">Awaiting first snapshot</span>
-        )}
+        ) : null}
       </div>
 
       {provenance && (
-        <span
-          className="absolute bottom-3 right-3 text-[14px] opacity-100 select-none"
-          title="Sourced from Fortifi Moat"
-        >
+        <span className="absolute bottom-3 right-3 text-[14px] opacity-100 select-none">
           {provenance}
         </span>
       )}
       {provenanceSrc && (
         <img
           src={provenanceSrc}
-          alt="source"
+          alt={provenanceSrcAlt ?? 'source'}
           className="absolute bottom-3 right-3 h-4 w-4 opacity-100 select-none"
-          title="Pharaoh Exchange"
         />
+      )}
+      {provenanceNode && (
+        <span className="absolute bottom-3 right-3 opacity-70 select-none">
+          {provenanceNode}
+        </span>
       )}
     </div>
   );

@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const RPC_URL   = process.env.AVAX_RPC_URL!;
-const LIL_TOKEN = process.env.LIL_TOKEN_ADDRESS!;
-const DEAD_ADDR = process.env.DEAD_ADDRESS!;
-const LP_ADDR   = process.env.LP_ADDRESS!;
+const RPC_URL   = (process.env.AVAX_RPC_URL   ?? 'https://api.avax.network/ext/bc/C/rpc').trim();
+const LIL_TOKEN = (process.env.SUPERCYCLE_TOKEN_ADDRESS ?? '0xCA2e0f72653337d05B1ABceBEA5718A4A3E57a0b').trim();
+const DEAD_ADDR = (process.env.DEAD_ADDRESS   ?? '0x000000000000000000000000000000000000dead').trim();
+const LP_ADDR   = (process.env.LP_ADDRESS     ?? '0x017c5608a8ab29ab23093726cf7c64e5ef88e191').trim();
 
 // ABI-encode balanceOf(address): selector + address padded to 32 bytes
 function encodeBalanceOf(address: string): string {
@@ -37,5 +37,6 @@ export async function fetchChainBalances() {
     balanceOf(DEAD_ADDR),
     balanceOf(LP_ADDR),
   ]);
+  console.log('[Chain] dead:', dead, '| lp:', lp);
   return { dead, lp };
 }

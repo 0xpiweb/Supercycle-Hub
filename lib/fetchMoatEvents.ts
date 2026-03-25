@@ -1,36 +1,44 @@
 import axios from 'axios';
 
-const API_BASE   = process.env.EVENTS_API_BASE!;
-const MOAT_ADDR  = process.env.MOAT_ADDRESS!;
-const NETWORK    = 'avalanche';
+const RPC_URL   = (process.env.AVAX_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc').trim();
+const MOAT_ADDR = (process.env.NEXT_PUBLIC_MOAT_ADDRESS ?? '0x464b2817f16f6117602ad05bae446c2fc5ba6fb7').trim();
 
-async function sumEventType(eventType: string): Promise<bigint> {
-  const { data } = await axios.get(`${API_BASE}/events`, {
-    params: { contractAddress: MOAT_ADDR, network: NETWORK, eventType, limit: 1000 },
-    timeout: 12000,
-  });
-  const results: { args?: { amount?: string } }[] = data?.results ?? [];
-  return results.reduce((sum, e) => sum + BigInt(e?.args?.amount ?? '0'), 0n);
-}
+// keccak256("getTotalAmounts()") = 0xc4a7761e
+// Returns (uint256 totalStaked, uint256 totalLocked, uint256 totalBurned, uint256 totalInContract)
+const SELECTOR = '0xc4a7761e';
 
 function fromWei(wei: bigint): number {
-  // Divide by 10^16 via BigInt then by 100 — preserves 2 decimal places
+  // Divide by 10^16 then by 100 — preserves 2 decimal places without float precision loss
   return Number(wei / 10n ** 16n) / 100;
 }
 
 export async function fetchMoatEvents() {
-  const [stakedWei, withdrawnWei, lockedWei, lockExitedWei, burnedWei] =
-    await Promise.all([
-      sumEventType('Staked'),
-      sumEventType('Withdrawn'),
-      sumEventType('Locked'),
-      sumEventType('LockExited'),
-      sumEventType('Burned'),
-    ]);
+  try {
+    const { data } = await axios.post(
+      RPC_URL,
+      {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'eth_call',
+        params: [{ to: MOAT_ADDR, data: SELECTOR }, 'latest'],
+      },
+      { timeout: 10000 }
+    );
 
-  return {
-    staked: fromWei(stakedWei - withdrawnWei),
-    locked: fromWei(lockedWei - lockExitedWei),
-    burned: fromWei(burnedWei),
-  };
+    if (!data?.result || data.result === '0x') {
+      return { staked: 0, locked: 0, burned: 0 };
+    }
+
+    // ABI-decode 4 × uint256 (each 32 bytes = 64 hex chars), strip leading 0x
+    const hex    = data.result.slice(2);
+    const staked = fromWei(BigInt('0x' + hex.slice(0,   64)));
+    const locked = fromWei(BigInt('0x' + hex.slice(64,  128)));
+    const burned = fromWei(BigInt('0x' + hex.slice(128, 192)));
+
+    console.log('[Moat] staked:', staked, '| locked:', locked, '| burned:', burned);
+    return { staked, locked, burned };
+  } catch (err) {
+    console.error('[Moat] fetchMoatEvents error:', err);
+    return { staked: 0, locked: 0, burned: 0 };
+  }
 }

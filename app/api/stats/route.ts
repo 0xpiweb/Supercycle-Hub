@@ -5,7 +5,9 @@ import type { Stats } from '@/lib/types';
 
 export const revalidate = 60;
 
-const TOTAL_SUPPLY = 1_350_000_000;
+const TOTAL_SUPPLY     = 10_000_000_000;
+const NEXT_MILESTONE   = 1_500_000_000;
+const HISTORICAL_BURNS = 0;
 
 function pct(value: number): string {
   return (value / TOTAL_SUPPLY * 100).toFixed(2);
@@ -21,7 +23,9 @@ export async function GET() {
     const { staked, locked, burned } = moat;
     const { dead, lp } = chain;
 
-    const totalRemoved = staked + locked + burned + dead + lp;
+    const secured      = staked + locked + burned;
+    const moatTotal    = staked + locked + dead + HISTORICAL_BURNS;
+    const totalRemoved = moatTotal + lp;
     const circulating  = TOTAL_SUPPLY - totalRemoved;
 
     const stats: Stats = {
@@ -32,6 +36,10 @@ export async function GET() {
       lp,      lpPct:      pct(lp),
       totalRemoved, totalRemovedPct: pct(totalRemoved),
       circulating,  circulatingPct:  pct(circulating),
+      moatTotal,
+      moatStrength:  pct(moatTotal),
+      tokensToGoal:  Math.max(0, NEXT_MILESTONE - moatTotal),
+      secured,       securedPct:     pct(secured),
     };
 
     return NextResponse.json(stats);

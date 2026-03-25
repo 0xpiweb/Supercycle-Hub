@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/super-favicon.png', type: 'image/png' },
-      { url: '/super-favicon.png?v=2', type: 'image/png' }, 
+      { url: '/super-favicon.png?v=2', type: 'image/png' },
     ],
     apple: '/super-favicon.png',
   },
