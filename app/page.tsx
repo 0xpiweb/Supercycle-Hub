@@ -62,10 +62,15 @@ function calcDelta(latest: LilStatsRow, previous: LilStatsRow | null): Delta {
 export const revalidate = 60;
 
 export default async function Dashboard() {
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
   const [moat, chain, supabaseRes, dexRes] = await Promise.all([
     fetchMoatEvents(),
     fetchChainBalances(),
-    supabase.from('lil_stats').select('*').order('created_at', { ascending: false }).limit(1),
+    supabase.from('lil_stats').select('*')
+      .lte('created_at', oneDayAgo)
+      .order('created_at', { ascending: false })
+      .limit(1),
     fetch(DEX_API, { next: { revalidate: 60 } }),
   ]);
 
@@ -83,11 +88,12 @@ export default async function Dashboard() {
   latest.circulating = TOTAL_SUPPLY - (latestMoat + latest.lp);
 
   const stats    = rowToStats(latest);
-  const previous = rows && rows[0] ? rows[0] : latest;
+  const snapshot24h = rows && rows[0] && rows[0].circulating > 0 ? rows[0] : null;
+  const previous = snapshot24h ?? latest;
   const delta    = calcDelta(latest, previous);
   const circulatingDeltaInvalid =
+    !snapshot24h ||
     delta.circulating == null ||
-    previous.circulating <= 0 ||
     Math.abs(delta.circulating) > TOTAL_SUPPLY;
 
   // Market data — server-side initial value for the client MarketTicker
