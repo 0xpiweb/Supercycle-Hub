@@ -28,7 +28,7 @@ export default function SupplyBar({
 
       {/* Secured summary — sits directly above the bar */}
       <p className="text-xs text-zinc-500 tracking-wider mb-2">
-        <span className="text-[#00FF41] font-semibold text-sm [text-shadow:0_0_12px_rgba(0,255,65,0.5)]">
+        <span className="text-[#00FF41] font-semibold text-sm">
           {Math.round(secured).toLocaleString('en-US')} $SUPERCYCLE
         </span>
         {' '}Secured in Moat

@@ -140,7 +140,7 @@ export default async function Dashboard() {
             $SUPERCYCLE Hub
           </h1>
           <p className="text-zinc-400 mt-1 text-sm flex items-center gap-2 flex-wrap">
-            <span>Total Supply: <span className="text-[#00FF41] font-medium [text-shadow:0_0_12px_rgba(0,255,65,0.5)]">10,000,000,000 $SUPERCYCLE</span></span>
+            <span>Total Supply: <span className="text-[#00FF41] font-medium">10,000,000,000 $SUPERCYCLE</span></span>
             <span className="inline-flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF41] opacity-75"></span>
@@ -163,7 +163,7 @@ export default async function Dashboard() {
 
         {/* Row 2: Supply breakdown */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <StatCard icon="💀" label="Total Burned"  value={stats.dead}        pct={stats.deadPct}        delta={delta.dead}        provenanceSrc="/skull.svg"      provenanceSrcAlt="Skull" />
+          <StatCard icon="🔥" label="Total Burned"  value={stats.dead}        pct={stats.deadPct}        delta={delta.dead}        provenance="💀" />
           <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" hideChange={lpDeltaInvalid} />
           <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" hideChange={circulatingDeltaInvalid} />
         </div>
@@ -222,7 +222,7 @@ export default async function Dashboard() {
               <p className="text-xs text-zinc-500"><span className="text-zinc-300 font-medium">Burned</span> — $SUPERCYCLE burned via The Moat contract.</p>
             </div>
             <div className="flex items-start gap-2">
-              <img src="/skull.svg" className="h-4 w-4 mt-0.5 flex-shrink-0" alt="Skull" />
+              <span className="text-base leading-none mt-0.5">🔥</span>
               <p className="text-xs text-zinc-500"><span className="text-zinc-300 font-medium">Total Burned</span> — All $SUPERCYCLE sent to the dead address.</p>
             </div>
             <div className="flex items-start gap-2">
