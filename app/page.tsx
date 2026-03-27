@@ -245,7 +245,7 @@ export default async function Dashboard() {
       </div>
 
       {/* Ecosystem floating nav — fixed bottom-right */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-row gap-2 items-center">
         <a
           href="https://lil-hub.vercel.app"
           target="_blank"
