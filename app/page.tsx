@@ -98,19 +98,6 @@ export default async function Dashboard() {
     delta.burned = delta.dead;
   }
 
-  // LP: hide if no valid snapshot, or delta > 50% of current LP (calculation error)
-  const lpDeltaInvalid =
-    !snapshot24h ||
-    delta.lp == null ||
-    Math.abs(delta.lp) > stats.lp * 0.5;
-
-  // Circulating: hide if no valid snapshot, or delta > 10% of total supply (1B threshold)
-  const circulatingDeltaInvalid =
-    !snapshot24h ||
-    delta.circulating == null ||
-    snapshot24h.circulating <= 0 ||
-    Math.abs(delta.circulating) > TOTAL_SUPPLY * 0.1;
-
   // Market data — server-side initial value for the client MarketTicker
   const dexJson = await dexRes.json().catch(() => null);
   const pair    = dexJson?.pairs?.[0] ?? null;
@@ -164,8 +151,8 @@ export default async function Dashboard() {
         {/* Row 2: Supply breakdown */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <StatCard icon="🔥" label="Total Burned"  value={stats.dead}        pct={stats.deadPct}        delta={delta.dead}        provenance="💀" />
-          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" hideChange={lpDeltaInvalid} />
-          <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" hideChange={circulatingDeltaInvalid} />
+          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" />
+          <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" />
         </div>
 
         <SupplyBar
