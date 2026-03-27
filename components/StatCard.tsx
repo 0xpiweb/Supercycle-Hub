@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import DeltaRow from './DeltaRow';
 
 interface StatCardProps {
   icon: string;
@@ -14,28 +15,17 @@ interface StatCardProps {
   provenanceSrcAlt?: string;
   provenanceNode?: ReactNode;
   glowValue?: boolean;
-  hideChange?: boolean;
 }
 
 function fmt(n: number): string {
   return Math.round(n).toLocaleString('en-US');
 }
 
-function DeltaChip({ delta }: { delta: number }) {
-  const positive = delta >= 0;
-  const arrow    = positive ? '▲' : '▼';
-  const color    = positive ? 'text-[#00FF41]' : 'text-red-400';
-  return (
-    <span className={`text-xs font-medium ${color}`}>
-      {arrow} {positive ? '+' : ''}{fmt(delta)}
-    </span>
-  );
-}
 
 export default function StatCard({
   icon, iconSrc, iconNode, label, value, pct, delta, wide,
   provenance, provenanceSrc, provenanceSrcAlt, provenanceNode,
-  glowValue, hideChange,
+  glowValue,
 }: StatCardProps) {
   return (
     <div className={`relative bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2 transition-colors hover:border-[#00FF41] ${wide ? 'col-span-2' : ''}`}>
@@ -59,15 +49,12 @@ export default function StatCard({
         <span className="text-zinc-500 text-base font-normal ml-1">$SUPERCYCLE</span>
       </p>
 
-      <div className="h-4">
-        {!hideChange && delta != null ? (
-          <div className="flex items-center gap-1 text-zinc-400 text-xs">
-            <span>24h:</span>
-            <DeltaChip delta={delta} />
-          </div>
-        ) : !hideChange ? (
-          <span className="text-zinc-600 text-xs">Awaiting first snapshot</span>
-        ) : null}
+      <div className="h-4 flex items-center">
+        <DeltaRow
+          field={label.toLowerCase().replace(/\s+/g, '_')}
+          current={value}
+          serverDelta={delta ?? null}
+        />
       </div>
 
       {provenance && (

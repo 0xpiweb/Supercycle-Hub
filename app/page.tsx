@@ -83,8 +83,9 @@ export default async function Dashboard() {
   latest.circulating = TOTAL_SUPPLY - (latestMoat + latest.lp);
 
   const stats    = rowToStats(latest);
-  const previous = rows && rows[0] ? rows[0] : latest;
-  const delta    = calcDelta(latest, previous);
+  // Only use snapshot if it was recorded with full schema (lp > 0 and circulating > 0)
+  const snapshot24h = rows && rows[0] && rows[0].lp > 0 && rows[0].circulating > 0 ? rows[0] : null;
+  const delta    = calcDelta(latest, snapshot24h);
 
   // Master rule: Moat Burn delta can never logically exceed Total Burned delta
   if (delta.burned != null && delta.dead != null && delta.burned > delta.dead) {
