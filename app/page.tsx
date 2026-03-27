@@ -62,15 +62,10 @@ function calcDelta(latest: LilStatsRow, previous: LilStatsRow | null): Delta {
 export const revalidate = 60;
 
 export default async function Dashboard() {
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
   const [moat, chain, supabaseRes, dexRes] = await Promise.all([
     fetchMoatEvents(),
     fetchChainBalances(),
-    supabase.from('lil_stats').select('*')
-      .lte('created_at', oneDayAgo)
-      .order('created_at', { ascending: false })
-      .limit(1),
+    supabase.from('lil_stats').select('*').order('created_at', { ascending: false }).limit(1),
     fetch(DEX_API, { next: { revalidate: 60 } }),
   ]);
 
@@ -88,27 +83,13 @@ export default async function Dashboard() {
   latest.circulating = TOTAL_SUPPLY - (latestMoat + latest.lp);
 
   const stats    = rowToStats(latest);
-  // Snapshot is only valid if ALL tracked fields were recorded (lp > 0 guards against old schema rows)
-  const snapshot24h = rows && rows[0] && rows[0].lp > 0 && rows[0].circulating > 0 ? rows[0] : null;
-  const previous = snapshot24h ?? latest;
+  const previous = rows && rows[0] ? rows[0] : latest;
   const delta    = calcDelta(latest, previous);
 
   // Master rule: Moat Burn delta can never logically exceed Total Burned delta
   if (delta.burned != null && delta.dead != null && delta.burned > delta.dead) {
     delta.burned = delta.dead;
   }
-
-  // Only suppress when a snapshot EXISTS but the delta is clearly a data error.
-  // When snapshot24h is null, previous === latest so delta is 0 — that's fine to show.
-  const lpDeltaSuspect =
-    snapshot24h != null &&
-    (delta.lp == null || Math.abs(delta.lp) > stats.lp * 0.5);
-
-  const circulatingDeltaSuspect =
-    snapshot24h != null &&
-    (delta.circulating == null ||
-     snapshot24h.circulating <= 0 ||
-     Math.abs(delta.circulating) > TOTAL_SUPPLY * 0.1);
 
   // Market data — server-side initial value for the client MarketTicker
   const dexJson = await dexRes.json().catch(() => null);
@@ -163,8 +144,8 @@ export default async function Dashboard() {
         {/* Row 2: Supply breakdown */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <StatCard icon="🔥" label="Total Burned"  value={stats.dead}        pct={stats.deadPct}        delta={delta.dead}        provenance="💀" />
-          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" hideChange={lpDeltaSuspect} />
-          <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" hideChange={circulatingDeltaSuspect} />
+          <StatCard icon="⚖️" label="LP Pair"       value={stats.lp}          pct={stats.lpPct}          delta={delta.lp}          iconNode={<Scale className="h-4 w-4 text-zinc-400" />} provenanceSrc="/logo-arena.svg" provenanceSrcAlt="Arena" />
+          <StatCard icon="💎" label="Circulating"   value={stats.circulating} pct={stats.circulatingPct} delta={delta.circulating}       iconSrc="/super-favicon.png"     provenanceSrc="/globe.svg"      provenanceSrcAlt="Globe" />
         </div>
 
         <SupplyBar
