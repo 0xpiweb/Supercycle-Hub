@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 
 const TOTAL_SUPPLY = 10_000_000_000;
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   // Verify cron secret to prevent unauthorized calls
   const auth = req.headers.get('authorization');
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
